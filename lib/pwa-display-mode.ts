@@ -28,6 +28,34 @@ export const PWA_DISPLAY_MODE_COOKIE = "pwa_display_mode";
 export const PWA_DISPLAY_MODE_CHANGED_EVENT = "pwa-display-mode-changed";
 export const DEFAULT_PWA_DISPLAY_PREFERENCE: PwaDisplayPreference = "fullscreen";
 
+/** 无边框全屏「布局」判定，必须与 styles/phone-shell.css 里那段
+ *  @media (max-width: 560px),
+ *         (any-pointer: coarse) and (orientation: portrait) and (max-width: 1000px)
+ *  逐字一致（字符串里写成单行，等价表达式）。
+ *  旧条件 (max-width:500px) and (hover:none) and (pointer:coarse) 三者必须同时
+ *  成立，而 (pointer:coarse) 描述的是**主指针**：接了鼠标/触控笔、开了桌面模式或
+ *  三星 DeX 的手机上报 pointer:fine，整块规则失效，手机壳边框就还在。
+ *  any-pointer:coarse 只要设备存在触摸输入即命中，覆盖这些设备。
+ *  orientation:portrait 是硬约束——桌面网格写死 4 列 × 6 行、每格最小高 84px，
+ *  横屏可用高度只有 400~440px，六排放不下、底部两排会被裁掉。 */
+export const MOBILE_SHELL_MEDIA_QUERY =
+  "(max-width: 560px), (any-pointer: coarse) and (orientation: portrait) and (max-width: 1000px)";
+
+/** 申请浏览器全屏（requestFullscreen）的判定，比布局窄一档：只认上手即触屏。
+ *  布局条件那半截 (max-width:560px) 是为了让窄窗口也铺满，但桌面浏览器拖窄时
+ *  不该被点击劫持进全屏，所以全屏只跟随 (any-pointer:coarse)。 */
+export const MOBILE_FULLSCREEN_MEDIA_QUERY = "(any-pointer: coarse)";
+
+export function isMobileShellViewport(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia(MOBILE_SHELL_MEDIA_QUERY).matches;
+}
+
+export function isTouchViewport(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia(MOBILE_FULLSCREEN_MEDIA_QUERY).matches;
+}
+
 function decodeCookieValue(value: string): string {
   try {
     return decodeURIComponent(value);

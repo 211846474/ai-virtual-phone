@@ -1,4 +1,7 @@
-const CACHE_VERSION = "ai-phone-pwa-v12";
+/* 布局改动必须升版本号：/_next/static/ 与字体/图片走 cache-first，旧 SW 存活
+   期间客户端永远拿缓存里的旧 CSS，重新部署也看不到变化（典型症状：改完样式
+   手机上还是老样子、边框还在）。升版本让 activate 清空旧缓存并重存 "/" 快照。 */
+const CACHE_VERSION = "ai-phone-pwa-v13";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

@@ -15,7 +15,7 @@ import { hydrateKvDb, isKvHydrated } from "@/lib/kv-db";
 import { getThemeAssetMap, readThemeProfile } from "@/lib/theme-storage";
 import { resolveActiveIconSkins, type ThemeProfile } from "@/lib/theme-types";
 import { hasPendingMcpOAuthCallback } from "@/lib/tool-executor";
-import { shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
+import { isTouchViewport, shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
 
 const TEXT = {
   loading: "\u52A0\u8F7D\u4E2D...",
@@ -267,7 +267,9 @@ export function MainApp() {
     })();
 
     // 安卓全屏兜底。是否请求全屏在每次点击时读取，设置切换后无需重载。
-    const isMobile = window.matchMedia("(max-width: 500px) and (hover: none) and (pointer: coarse)").matches;
+    // 用 isTouchViewport()（只认触摸能力）而不是布局用的 isMobileShellViewport()：
+    // 布局那条为了窄窗口也铺满，桌面浏览器拖窄时不该被点击劫持进全屏。
+    const isMobile = isTouchViewport();
     if (!isMobile) return () => {
       cancelled = true;
     };

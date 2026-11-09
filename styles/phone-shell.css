@@ -1056,7 +1056,19 @@
 
 /* ── Mobile responsive ── */
 
-@media (max-width: 500px) and (hover: none) and (pointer: coarse) {
+/* 无边框全屏的触发条件，二选一命中即铺满整屏、拆掉手机壳：
+   ① 视口 ≤560px（窄窗口，不论指针类型）；
+   ② 设备带触摸屏、竖屏、视口 ≤1000px（覆盖手机与 iPad 竖屏）。
+      用 any-pointer:coarse 而不是 (hover:none) and (pointer:coarse)：后者描述的是
+      **主指针**，接了鼠标/触控笔、开了桌面模式或三星 DeX 的手机上报的是 fine，
+      条件不成立、整块规则失效，边框就还在。any-pointer 只要设备有触摸能力即命中。
+   原条件三者必须同时成立，浏览器一旦把指针报成 fine（桌面模式、DeX、接鼠标/
+   触控笔的平板、部分安卓定制浏览器）整块失效，边框与圆角原样留着。
+   横屏故意排除：桌面网格写死 4 列 × 6 行、每格最小高 84px，横屏可用高度只有
+   400~440px，六排放不下，底部两排会被 overflow 裁掉。
+   必须与 lib/pwa-display-mode.ts 的 MOBILE_SHELL_MEDIA_QUERY 逐字一致。 */
+@media (max-width: 560px),
+  (any-pointer: coarse) and (orientation: portrait) and (max-width: 1000px) {
 
   /* 用户在设置里显式开启「显示系统状态栏」且运行时不在全屏时，控制器才会挂
      data-pwa-display-mode 标记（见 pwa-manifest-injector）：此时所有 App 共用系统
@@ -1085,20 +1097,30 @@
 
   :root {
     --phone-screen-width: 100vw;
+    /* 三级兜底：老 WebView 不认新单位时按顺序退回；dvh 跟随可视区，
+       地址栏收放不再把底部顶出屏幕。 */
+    --phone-screen-height: 100vh;
     --phone-screen-height: 100lvh;
+    --phone-screen-height: 100dvh;
   }
 
   html,
   body {
     overflow: hidden;
     width: 100%;
+    height: 100vh;
     height: 100lvh;
+    height: 100dvh;
     background: var(--c-page-body-bg);
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
   }
 
   .app-root {
     width: 100vw;
+    height: 100vh;
     height: 100lvh;
+    height: 100dvh;
     padding: 0;
     display: flex;
     justify-content: flex-start;
@@ -1152,9 +1174,28 @@
     display: none;
   }
 
+  /* 屏幕本体也钉死成直角无边：主题/装扮里若把 --phone-screen-radius 调大，
+     手机上看就是一块四角露出页面底色的圆角玻璃板，与「无边框」正好相反。
+     用元素级规则兜住变量，主题改不动。 */
+  .phone-shell-wrap .phone-shell {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* 状态栏只清底色，不动位置。上一版这里改成 top: max(主题值, 安全区)，
+     把用户为 Edge 调的负值直接钳成 0/安全区，虚拟状态栏从屏幕外被推回
+     可见区——就是「多了一个顶栏」。位置一律继续由「主题 App → 状态栏 →
+     状态栏位置」决定，CSS 不插手。 */
+  .phone-shell-wrap .phone-status-bar {
+    background: transparent;
+    border: 0;
+  }
+
   .app-root.splash-root {
     width: 100vw;
+    height: 100vh;
     height: 100lvh;
+    height: 100dvh;
     margin: 0;
     padding: 0;
     display: flex;
