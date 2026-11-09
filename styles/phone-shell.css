@@ -1031,8 +1031,11 @@
 /* 更窄视口（≤373px）：按 390px 设计稿整体等比缩放（格 66→16.92vw、
    距 20→5.13vw、图标 58→14.87vw、dock 354→90.77vw），窄屏呈现与正常
    手机完全相同的比例观感，无多余留白；网格/dock 同源，天然对齐。
-   ≥374px 不受影响。 */
-@media (max-width: 373px) and (hover: none) and (pointer: coarse) {
+   ≥374px 不受影响。
+   不附加 (hover:none) and (pointer:coarse)：指针类型只说明"有没有鼠标"，
+   与"屏幕有多窄"无关；加了它，桌面浏览器窗口拖到 360px 宽时图标按 66px
+   固定尺寸排、四列直接溢出。 */
+@media (max-width: 373px) {
   .icon-grid,
   .dock {
     --slot-size: 16.92vw;
@@ -1184,11 +1187,8 @@
     display: none !important;
   }
 
-  /* 屏幕本体也钉死成直角无边：主题/装扮里若把 --phone-screen-radius 调大，
-     手机上看就是一块四角露出页面底色的圆角玻璃板，与「无边框」正好相反。
-     用元素级规则兜住变量，主题改不动。 */
-  /* 屏幕本体同样用 !important 落地：--phone-screen-radius 若被主题的 cssOverrides
-     覆盖成具体值，这条叠在变量上的规则会被顶掉，屏幕上仍是一块圆角玻璃板。 */
+  /* 屏幕本体指甲角：--phone-screen-radius 若被主题 cssOverrides 覆盖成具体值，
+     叠在变量上的 0 会被顶掉，屏幕上仍是一块四角露底色的圆角玻璃板。 */
   .phone-shell-wrap .phone-shell {
     border-radius: 0 !important;
     box-shadow: none !important;
