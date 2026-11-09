@@ -1151,35 +1151,47 @@
     will-change: transform;
   }
 
+  /* 三层外壳全部清成 0，并且一律带 !important。
+     为什么必须 !important：装扮里的 cssOverrides 是以 `:root { --phone-case-padding: … }`
+     的形式在 document.head 末尾注入的 <style>，与这里的 `.phone-shell-wrap`（同为
+     0,1,0 特异性）平级时**后写入者胜**——主题一旦存过 --phone-case-padding /
+     --phone-frame-size 这类值，就会把这里的 0px 顶掉，金属边框原样长回来。
+     这就是「代码改了、手机上边框还在」最隐蔽的一条路径：叠在变量上的 0 永远
+     打不过后注入的变量。直接落到属性上并加 !important 才穿得过去。 */
   .phone-shell-wrap .phone-case {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
   }
 
+  /* 左侧静音键、音量键、右侧电源键都是伪元素画出来的，一并关掉 */
   .phone-shell-wrap .phone-case::before,
   .phone-shell-wrap .phone-case::after {
-    display: none;
+    display: none !important;
   }
 
   .phone-shell-wrap .phone-frame {
-    padding: 0;
-    background: transparent;
-    box-shadow: none;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   .phone-shell-wrap .phone-frame::before,
   .phone-shell-wrap .phone-frame::after {
-    display: none;
+    display: none !important;
   }
 
   /* 屏幕本体也钉死成直角无边：主题/装扮里若把 --phone-screen-radius 调大，
      手机上看就是一块四角露出页面底色的圆角玻璃板，与「无边框」正好相反。
      用元素级规则兜住变量，主题改不动。 */
+  /* 屏幕本体同样用 !important 落地：--phone-screen-radius 若被主题的 cssOverrides
+     覆盖成具体值，这条叠在变量上的规则会被顶掉，屏幕上仍是一块圆角玻璃板。 */
   .phone-shell-wrap .phone-shell {
-    border-radius: 0;
-    box-shadow: none;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 
   /* 状态栏只清底色，不动位置。上一版这里改成 top: max(主题值, 安全区)，
