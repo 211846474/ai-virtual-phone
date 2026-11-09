@@ -137,6 +137,7 @@ import { startIncomingCallVibration } from "@/lib/call-vibration";
 import { setMascotContext } from "@/lib/mascot-context";
 import { DESKTOP_WIDGETS_CHANGED_EVENT } from "@/lib/mascot-events";
 import { useWeixinBridge } from "@/lib/use-weixin-bridge";
+import { MOBILE_SHELL_MEDIA_QUERY } from "@/lib/pwa-display-mode";
 import { startWeixinCloudRealtimeSync } from "@/lib/weixin-cloud-sync";
 import { WeixinSyncToast } from "@/components/weixin-sync-toast";
 import { sendBrowserNotification } from "@/lib/browser-notification";
@@ -927,7 +928,10 @@ function useAndroidCaretKeyboardLift() {
       return;
     }
 
-    const mobileMq = window.matchMedia("(max-width: 500px) and (hover: none) and (pointer: coarse)");
+    // 与无边框布局同源判定：原来写死 (max-width:500px) and (hover:none) and
+    // (pointer:coarse)，浏览器把主指针报成 fine 时（桌面模式/DeX/接鼠标）
+    // 键盘弹出后输入框不上移，被键盘盖住。
+    const mobileMq = window.matchMedia(MOBILE_SHELL_MEDIA_QUERY);
     const viewport = window.visualViewport;
     let focusedElement: HTMLElement | null = null;
     let raf = 0;
