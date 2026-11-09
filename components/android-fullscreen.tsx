@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
+import { isTouchViewport, shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
 
 /**
  * 安卓全屏兜底：点击屏幕进入全屏模式（iOS 不支持此 API，会自动忽略）。
@@ -13,10 +13,9 @@ import { shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
  */
 export function AndroidFullscreen() {
   useEffect(() => {
-    const isMobile = window.matchMedia(
-      "(max-width: 500px) and (hover: none) and (pointer: coarse)"
-    ).matches;
-    if (!isMobile) return;
+    // 与 main-app 同源：只认触摸能力，不认主指针（pointer:coarse 在桌面模式/DeX
+    // 下会报 fine，写死该条件会整段失效）。
+    if (!isTouchViewport()) return;
 
     function tryFullscreen() {
       if (!shouldRequestPwaFullscreen()) return;
